@@ -16,20 +16,22 @@ const io = socketIo(server); // < Interesting!
 const users = {};
         
 io.on("connection", socket => {
-    users[socket.id] = {};
-    console.log("New client connected"), setInterval(
+    const uid = socket.request.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
+    console.log('New request from : ' + uid);
+    users[uid] = {};
+    setInterval(
         () => {
             io.emit("update locations", users); /* Broadcast message to all clients */
         },
         UPDATE_INTERVAL,
     );
     socket.on("update location", function(msg){
-        users[socket.id] = msg;
+        users[uid] = msg;
         console.table(msg);
     });
     socket.on("disconnect", () => {
         console.log("Client disconnected");
-        users[socket.id] = {};
+        users[uid] = {};
     });
 });
 
