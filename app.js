@@ -5,16 +5,20 @@ const socketIo = require("socket.io");
 const UPDATE_INTERVAL = 100; /* 100 ms interval for client updates */
 const UPDATE_TIMEOUT = 5 * 60 * 1000; /* 5 minutes interval */
 const port = process.env.PORT || 4001;
-const index = require("./routes/index");
+
+let users = {};
 
 const app = express();
-app.use(index);
+const router = express.Router();
+
+router.get("/", (req, res) => {
+  res.send({ response:  users}).status(200);
+});
+app.use(router);
 
 const server = http.createServer(app);
 
 const io = socketIo(server); // < Interesting!
-
-const users = {};
 
 /* Set connection interval for broadcast */
 setInterval(
